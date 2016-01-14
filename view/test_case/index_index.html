@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+<meta charset="UTF-8">
+<title>Fireyes | TestCase</title>
+
+<script src="http://code.angularjs.org/angular-1.0.1.min.js"></script>
+<script type="text/javascript" src="/static/js/test_case.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/zui/css/zui.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="col col-xs-4 panel-group" ng-controller="listPackages">
+        <div class="panel panel-primary" ng-repeat="package in packages">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a href="#package{{package.name}}" data-toggle="collapse">{{package.name}}</a>
+            </h4>
+          </div>
+          <div class="panel-collapse fade collapse" id="package{{package.name}}" style="height: auto;">
+            <div class="panel-body">
+              {{package.type}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col col-xs-8"></div>
+    </div>
+  </header>
+</body>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/static/zui/js/zui.min.js"></script>
+</html>
