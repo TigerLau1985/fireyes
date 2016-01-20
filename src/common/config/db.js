@@ -4,9 +4,10 @@
  * @type {Object}
  */
 export default {
-  type: 'mysql',
+  type: 'mongo',
   log_sql: true,
   log_connect: true,
+  prefix: 'fireyes_',
   adapter: {
     mysql: {
       host: '127.0.0.1',
@@ -18,7 +19,9 @@ export default {
       encoding: 'utf8'
     },
     mongo: {
-
+      host:'127.0.0.1',
+      port:'27017',
+      database:'test'
     }
   }
 };

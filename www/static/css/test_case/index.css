@@ -1,0 +1,22 @@
+.container {
+	margin-top: 30px;
+}
+
+.container .btn {
+	margin-bottom: 5px;
+}
+
+.pull-right {
+	margin-right: 5px;
+}
+
+#caseText {
+	width : 100%;
+	height: 40em;
+	resize: none;
+}
+
+#caseTitle {
+	width: 100%;
+	margin-bottom: 5px;
+}

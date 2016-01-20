@@ -7,46 +7,83 @@ export default class extends Base {
    * index action
    * @return {Promise} []
    */
-   indexAction(){
-   	return this.listAction();
+  indexAction(){
+   	return this.redirect('/test_case/');
    }
 
-   listAction() {
-   	var fs = require('fs');
-   	var case_root = think.RESOURCE_PATH + '/test_case/';
-   	var subs = new Array;
-   	if (fs.existsSync(case_root)) {
-   		var cases = fs.readdirSync(case_root);
-   		var stat;
-   		for(var i in cases) {
-   			var item = {"name":"","type":""};
-   			stat = fs.statSync(case_root + cases[i]);
-   			if (stat.isDirectory()) { 
-   				item.name = cases[i];
-   				item.type = "package";
-   			} else {
-   				item.name = cases[i];
-   				item.type = "case";
-   			}
-   			subs.push(item);
-   		}
-   	}
-   	this.http.json(subs);
-   }
+  listAction() { 
+    return this.enmuDir();
+  }
 
-   showAction() {
+  getFileExt(file_name){
+    var index1=file_name.lastIndexOf(".");  
+    var index2=file_name.length; 
+    var postf=file_name.substring(index1,index2);//后缀名  
+    return postf;
+  }
 
-   }
+  enmuDir(dir, ext) {
+    var fs = require('fs');
+    var path = this.config('case_root');  
+    var cases = new Array;
+    if (dir) path += dir + '/' ;
+    if (fs.existsSync(path) && fs.statSync(path).isDirectory()) {
+      cases = fs.readdirSync(path);
+      var stat;
+      for (var i in cases) {
+        stat = fs.statSync(path + cases[i]);
+        if (ext) {
+          if (!stat.isFile() || ext != this.getFileExt(cases[i])) {
+            cases.splice(i, 1);
+          }
+        } else if(!stat.isDirectory()){
+          cases.splice(i, 1);
+        }
+      }
+    }
+    return cases;
+  }
 
-   addAction() {
+  showPkg(pkg) {
+    return this.enmuDir(pkg, '.json');
+  }
 
-   }
+  addAction() {
+    var pkg = this.param('name');
+    if (pkg) {
+      var fs = require('fs');
+      var path = this.config('case_root');
+      path += pkg + '/' ;
+      if(!fs.existsSync(path)) {
+        fs.mkdirSync(path);
+        this.success();
+      } else {
+        this.fail(102, 'The same name package is exist.');
+      }
+    } else {
+      this.fail(101, 'Can not found package name');
+    }
+  }
 
-   removeAction() {
+  removeAction() {
+    var pkg = this.param('name');
+    if (pkg) {
+      var fs = require('fs');
+      var path = this.config('case_root');
+      path += pkg + '/' ;
+      if(fs.existsSync(path)) {
+        fs.rmdirSync(path);
+        this.success();
+      } else {
+        this.fail(102, 'The package is note exist.');
+      }
+    } else {
+      this.fail(101, 'Invalid request.');
+    }
+  }
 
-   }
-
-   renameAction() {
-
-   }
+  renameAction() {
+    var oldName = this.param('old');
+    var newName = this.param('new');
+  }
 }

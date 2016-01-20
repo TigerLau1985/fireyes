@@ -3,33 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <title>Fireyes | TestCase</title>
-
-<script src="http://code.angularjs.org/angular-1.0.1.min.js"></script>
-<script type="text/javascript" src="/static/js/test_case.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/zui/css/zui.min.css">
+<link rel="stylesheet" type="text/css" href="/static/css/test_case/index.css">
 </head>
 <body>
   <header>
     <div class="container">
-      <div class="col col-xs-4 panel-group" ng-controller="listPackages">
-        <div class="panel panel-primary" ng-repeat="package in packages">
+      <div class="col col-xs-4 panel-group">
+        <h3> 所有测试包 </h3>
+        <button class="btn btn-primary btn-block" onclick="javascript:addPackage()"><i class="icon icon-plus"></i></button>
+      <% controller.packages.forEach(function(package){%>
+        <div class="panel panel-primary" >
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a href="#package{{package.name}}" data-toggle="collapse">{{package.name}}</a>
-            </h4>
+              <a href="#package-<%=package%>" data-toggle="collapse"><%=package%></a>
+              <a class="pull-right" href="javascript:removePkg(<%=package%>)"><i class="icon icon-remove"></i> </a>
+              <a class="pull-right" href="javascript:renamePkg(<%=package%>)"><i class="icon icon-edit"></i> </a>
+            </h4> 
           </div>
-          <div class="panel-collapse fade collapse" id="package{{package.name}}" style="height: auto;">
-            <div class="panel-body">
-              {{package.type}}
-            </div>
+          <div class="panel-collapse fade collapse" id="package-<%=package%>" style="height: auto;">
+              <ul class="list-group">
+              <% controller.showPackage(package).forEach(function(cs){%>
+                <a href="javascript:showCase('<%=package%>/<%=cs%>')" class="list-group-item"> <%=cs%> </a>
+              <%})%>
+              </ul>
           </div>
         </div>
+      <%})%>
       </div>
-
-      <div class="col col-xs-8"></div>
+      <div class="col col-xs-8">
+        <div>
+          <div class="btn-group pull-right">
+            <button class="btn"><i class="icon icon-edit"></i>编辑</button>
+            <button class="btn"><i class="icon icon-remove"></i>删除</button>
+            <button class="btn"><i class="icon icon-refresh"></i>重新加载</button>
+            <button class="btn"><i class="icon icon-play"></i>运行</button>
+          </div>
+        </div>
+        <div>
+          <input id="caseTitle" type="text" readonly="readonly"></input>
+          <textarea id="caseText" class="bg-default" readonly="readonly"></textarea>
+        </div>
+      </div>
     </div>
   </header>
 </body>
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="/static/zui/js/zui.min.js"></script>
+<script src="/static/js/test_case.js"></script>
 </html>

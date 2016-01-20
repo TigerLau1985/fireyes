@@ -1,0 +1,38 @@
+{
+    "begin":{
+        "request":"http://172.16.101.122",
+        "body":"{\"cmd\":\"test\"}",
+        "desc":"向REST服务器发出创建会议的请求",
+        "time":3,
+        "response":{
+            "fields":["callID", "result", "next"],
+            "session":"callID",
+            "result":"ok",
+            "next":"do next"
+            },
+        "callback":{
+            "notice":"createCallBack",
+            "time":3,
+            "data":{
+                "fields":["callID", "result", "next"],
+                "session":"callID",
+                "result":"ok",
+                "next":"do next"
+            },
+            "timeout": "timeout.json",
+            "failed":"failed.json",
+            "successed":"success.json"
+        },
+        "timeout": "timeout.json",
+        "failed":"failed.json",
+        "successed":"begin_success"
+    },
+
+    "begin_success" : {
+        "request":"http://172.16.10.122",
+        "body":"{\"cmd\":\"next\"}",
+        "desc":"创建会议成功之后",
+        "time":3,
+        "response":"{\"result\":\"ok\"}"
+    }
+}
