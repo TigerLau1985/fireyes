@@ -59,7 +59,7 @@ export default class extends Base {
 	}
 
   async runAction() {
-  	let rlt = 'except';
+  	let rlt = 'none';
   	let name = this.param('case');
 	  let plan = this.param('plan');
 	  let model = this.model('callback');
@@ -73,6 +73,7 @@ export default class extends Base {
 		  		res = await this.executeCase(step);
 		  		pre = step;
 		  		step = null;
+          think.log(res, 'run');
 		  		if (res.errno) {
 		  			if ('ETIMEDOUT' == res.errno) {
 		  				rlt = 'timeout';
@@ -80,7 +81,7 @@ export default class extends Base {
 		  			}
 		  		} else {
 		  			let exp;
-		  			if(checkResponse(res, pre.response, exp)) {
+		  			if(this.checkResponse(res, pre.response, exp)) {
 		  				rlt = 'pass';
 		  				if (pre.successed) step = cs[pre.successed];
 		  				if (pre.callback) {
@@ -110,6 +111,7 @@ export default class extends Base {
 		  	}
 		  } 
 	  } catch(e) {
+      think.log(e, 'run');
 	  	rlt = 'except';
 	  }
 
@@ -128,39 +130,82 @@ export default class extends Base {
   }
 
   checkResponse(res, expert, exp) {
-  	let ret = false;
+  	if (!expert) { return true; }
 
-  	if (!expert) { ret = true};
+    if (expert.root) {
+      res = res[expert.root];
+      if(!res) return false;
+    }
 
-  	if (expert.fields && expert.session) {
-  		if (res.hasOwnProperty(expert.session)) {
-  			let ex;
-  			ex[expert.session] = res[expert.session];
-  			exp = ex;
-	  		ret = true;
-	  		let fields = expert.fields;
-	  		for (var i; i in fields; i++) {
-	  			let it = fields[i];
-	  			if (!res[it] || (expert[it] && res[it] != expert[it])) {
-	  				ret = false;
-	  				break;
-	  			}
-	  		}
-	  	}
+    think.log(res, 'check');
+    think.log(expert, 'check');
+
+    if (expert.session) {
+      if (res.hasOwnProperty(expert.session)) {
+        let ex;
+        ex[expert.session] = res[expert.session];
+        exp = ex;
+      } else {
+        return false;
+      }
+    }
+
+  	if (expert.fields) {
+  		let fields = expert.fields;
+  		for (var i in fields) {
+  			let it = fields[i];
+  			if (!res[it] || (expert[it] && res[it] != expert[it])) {
+  				return false;
+  			}
+  		}
   	}
-  	return ret;
+
+    return true;
+  }
+
+  auth(time) {
+    let str = this.config('ucpaas_account') +':' + time;
+    let buf = new Buffer(str);
+    return buf.toString('base64');
+  }
+
+  sig(time) {
+    let str = this.config('ucpaas_account') + this.config('ucpaas_token') + time;
+    let crypto = require('crypto');
+    let hash = crypto.createHash('md5');
+    hash.update(str);
+    return hash.digest('hex').toUpperCase();;
+  }
+
+  genReqOpt(step) {
+    let time = new Date().toISOString().replace(/\..+/, '').replace(/T/, '').replace(/:/g, '').replace(/-/g,'');
+    let opt = {
+      method:'post',
+      host:this.config('api_host'),
+      port:this.config('api_port'),
+      path:'/' + this.config('ucpaas_version')  + '/Accounts/' + this.config('ucpaas_account') + step.request + '?sig=' + this.sig(time),
+      headers:{
+        'Accept':'application/json',
+        'Content-Type':'application/json;charset=utf-8',
+        'Authorization':this.auth(time)
+      }
+    }
+    return opt;
   }
 
   async executeCase(step) {
-  	return new Promise((resolve, reject) => {  	
-	  	let https = require('http');
-	  	let req = https.request(step.request, function(res){
+  	return new Promise((resolve, reject) => {	
+	  	let https = require('https');
+      let opt = this.genReqOpt(step);
+	  	let req = https.request(opt, function(res){
 	  		res.on('data', function(d){
-	  			resolve(d);
+	  			resolve(JSON.parse(d));
 	  		});
+        res.on('error', function(e) {
+          resolve(e);
+        });
 	  	});
-	  	req.setTimeout(step.time);
-	  	req.end(step.body);
+	  	req.end(JSON.stringify(step.body));
 
 	  	req.on('error', function(e) {
 	  		resolve(e);

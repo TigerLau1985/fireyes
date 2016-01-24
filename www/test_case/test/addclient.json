@@ -1,0 +1,21 @@
+{
+    "begin":{
+        "request":"/Clients",
+        "body":{
+            "client" : {
+                "friendlyName" : "liuda621",
+                "appId"        : "1269fcd26f0c42aaaf8f03ec73da17c8",
+                "charge"       : "1",
+                "mobile"       : "13902994858",
+                "clientType"   : "1" 
+            }         
+        },
+        "desc":"请求穿件一个Client号",
+        "time":3,
+        "response":{
+            "root":"resp",
+            "fields":["respCode", "client"],
+            "respCode":"000000"
+        }
+    }
+}
