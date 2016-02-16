@@ -8,10 +8,8 @@ export default class extends Base {
    * @return {Promise} []
    */
   indexAction(self) {
-    this.action('package','list').then(function(data) {
-    	self.packages = data;
-    	return self.display();
-		});
+    self.packages = this.controller('package').enumDir();
+    return self.display();
   }
 
   showPackage(pack) {

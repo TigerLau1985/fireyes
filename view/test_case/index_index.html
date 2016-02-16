@@ -34,15 +34,16 @@
       <div class="col col-xs-8">
         <div>
           <div class="btn-group pull-right">
-            <button class="btn"><i class="icon icon-edit"></i>编辑</button>
-            <button class="btn"><i class="icon icon-remove"></i>删除</button>
-            <button class="btn"><i class="icon icon-refresh"></i>重新加载</button>
-            <button class="btn"><i class="icon icon-play"></i>运行</button>
+            <button class="btn" onclick="javascript:editCase()"><i class="icon icon-edit"></i>编辑</button>
+            <button class="btn" onclick="javascript:removeCase()"><i class="icon icon-remove"></i>删除</button>
+            <button class="btn" onclick="javascript:reloadCase()"><i class="icon icon-refresh"></i>重新加载</button>
+            <button class="btn" onclick="javascript:executeCase()"><i class="icon icon-play"></i>运行</button>
           </div>
         </div>
         <div>
           <input id="caseTitle" type="text" readonly="readonly"></input>
           <textarea id="caseText" class="bg-default" readonly="readonly"></textarea>
+          <div id="record" class="bg-default" readonly="readonly"></div>
         </div>
       </div>
     </div>

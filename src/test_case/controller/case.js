@@ -1,6 +1,7 @@
 'use strict';
 
 import Base from './base.js';
+import Record from './record.js';
 
 export default class extends Base {
   /**
@@ -59,10 +60,24 @@ export default class extends Base {
 	}
 
   async runAction() {
-  	let rlt = 'none';
   	let name = this.param('case');
 	  let plan = this.param('plan');
 	  let model = this.model('callback');
+    let fileName = "";
+    if (plan) {
+      fileName = plan;
+    } else {
+      var ts = new Date();
+      fileName = think.md5(this.http.ip()) + ts.getFullYear() + ts.getMonth() + ts.getDate();
+    }
+    let record = new Record(fileName);
+    let rlt = {
+      result:'none',
+      record:record.fileName
+    }
+
+    record.title("Begin execute " + name);
+    
   	try {
 	  	if (name) {
 	  		let cs = this.readCase(this.config('case_root') + name);
@@ -70,19 +85,18 @@ export default class extends Base {
 	  		let res;
 	  		let pre;
 	  		while(step) {
-		  		res = await this.executeCase(step);
+		  		res = await this.executeCase(step, record);
 		  		pre = step;
 		  		step = null;
-          think.log(res, 'run');
 		  		if (res.errno) {
 		  			if ('ETIMEDOUT' == res.errno) {
-		  				rlt = 'timeout';
+		  				rlt.result = 'timeout';
 		  				if (pre.timeout) step = cs[pre.timeout];
 		  			}
 		  		} else {
 		  			let exp;
 		  			if(this.checkResponse(res, pre.response, exp)) {
-		  				rlt = 'pass';
+		  				rlt.result  = 'pass';
 		  				if (pre.successed) step = cs[pre.successed];
 		  				if (pre.callback) {
                 let data = exp;
@@ -104,16 +118,17 @@ export default class extends Base {
                 }
 		  				}
 		  			} else {
-		  				rlt = 'fail';
+		  				rlt.result  = 'fail';
 		  				step = cs[pre.failed];
 		  			}
 		  		}
 		  	}
 		  } 
 	  } catch(e) {
-      think.log(e, 'run');
-	  	rlt = 'except';
+	  	rlt.result = 'except';
 	  }
+
+    record.close();
 
 	  if (!plan) {
 	  	this.end(rlt);
@@ -136,9 +151,6 @@ export default class extends Base {
       res = res[expert.root];
       if(!res) return false;
     }
-
-    think.log(res, 'check');
-    think.log(expert, 'check');
 
     if (expert.session) {
       if (res.hasOwnProperty(expert.session)) {
@@ -193,19 +205,24 @@ export default class extends Base {
     return opt;
   }
 
-  async executeCase(step) {
+  async executeCase(step, record) {
   	return new Promise((resolve, reject) => {	
 	  	let https = require('https');
       let opt = this.genReqOpt(step);
+
 	  	let req = https.request(opt, function(res){
 	  		res.on('data', function(d){
+          record.success('recive response: '+ d);
 	  			resolve(JSON.parse(d));
 	  		});
         res.on('error', function(e) {
+          record.fail('http error:' + e);
           resolve(e);
         });
 	  	});
-	  	req.end(JSON.stringify(step.body));
+      let body = JSON.stringify(step.body);
+      record.info('send request: \r\n' + 'opt: \r\n' + JSON.stringify(opt) + 'body: \r\n' + body);
+	  	req.end(body);
 
 	  	req.on('error', function(e) {
 	  		resolve(e);

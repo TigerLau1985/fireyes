@@ -1,4 +1,7 @@
+var curCS = undefined;
+
 function showCase(cs) {
+	curCS = cs;
 	$('#caseTitle').val(cs);
 	$.ajax({
 		url:'/test_case/case/read?case='+cs,
@@ -16,6 +19,39 @@ function addPackage(name) {
 		success:function(data) {
 		}
 	});
+}
+
+function editCase() {
+	if (curCS) {
+		
+	}
+}
+
+function removeCase() {
+
+}
+
+function reloadCase() {
+
+}
+
+function executeCase() {
+	if (curCS) {
+		$.ajax({
+			url:'/test_case/case/run?case='+curCS,
+			method:'post',
+			success:function(data) {
+				var rlt = JSON.parse(data);
+				$.ajax({
+					url:rlt.record,
+					method:'get',
+					success:function(d) {
+						$('#record').html(d);
+					}
+				});
+			}
+		});
+	}
 }
 
 var formatJson = function(json, options) {

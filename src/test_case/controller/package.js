@@ -12,7 +12,16 @@ export default class extends Base {
    }
 
   listAction() { 
-    return this.enmuDir();
+    let pkgs = this.enmuDir();
+    var ret = {
+      total: 0,
+      rows:[]
+    };
+    ret.total = pkgs.length;
+    for (var i in pkgs) {
+      ret.rows.push({id:i,name:pkgs[i]});
+    }
+    this.end(ret);
   }
 
   getFileExt(file_name){
