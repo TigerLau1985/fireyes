@@ -14,12 +14,17 @@ export default class extends Base {
   listAction() { 
     let pkgs = this.enmuDir();
     var ret = {
-      total: 0,
+      page:1,
+      total:1,
+      records: 0,
       rows:[]
     };
-    ret.total = pkgs.length;
     for (var i in pkgs) {
-      ret.rows.push({id:i,name:pkgs[i]});
+      var cs = this.enmuDir(pkgs[i], '.json');
+      ret.records += cs.length;
+      for (var j in cs) {
+        ret.rows.push({cell:[pkgs[i], cs[j]]});
+      }
     }
     this.end(ret);
   }

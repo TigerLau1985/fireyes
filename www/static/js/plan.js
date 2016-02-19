@@ -3,14 +3,23 @@ function showPlan(plan) {
 }
 
 $(document).ready(function() {
-	$('#cs').treegrid({
-		url:'/test_case/package/list',
-		idField:'id',
-		treeField:'name',
-		columns:[[
-		{field:'name',title:'名称',width:180},
-		{field:'state',title:'选中',width:80},
-		{field:'opra',title:'操作',width:80}
-		]]
+	$("#cs").jqGrid({
+		url: '/test_case/package/list',
+		datatype: "json",
+        height: 'auto',
+        colNames:['用例包','用例'],
+        colModel:[
+	       {name:'package',index:'invdate', width:120},
+	       {name:'case',index:'case', width:240, editable:true}
+	    ],
+	    viewrecords: true,
+		sortname: 'name',
+		grouping:true,
+		groupingView : {
+			groupField : ['package']
+		},
+		caption: "计划用例",
+		loadonce : true,
+		multiselect: true
 	});
 });

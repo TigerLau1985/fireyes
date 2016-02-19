@@ -8,7 +8,7 @@ export default class extends Base {
    * @return {Promise} []
    */
   indexAction(self) {
-    self.packages = this.controller('package').enumDir();
+    self.packages = this.controller('package').enmuDir();
     return self.display();
   }
 
